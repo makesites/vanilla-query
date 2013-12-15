@@ -1,0 +1,21 @@
+{
+	"name" : "vanilla-query",
+	"version" : "0.0.1",
+	"author": "makesites",
+	"homepage" : "http://github.com/makesites/vanilla-query",
+	"dependencies" : {
+		"commander" : "1.x",
+		"jshint" : "2.3.x",
+		"uglify-js" : "2.4.x",
+		"hbs" : "2.4.x"
+	},
+	"engine" : {
+		"node" : "0.8.x"
+	},
+	"licenses": [
+		{
+			"type": "Apache License, Version 2.0",
+			"url": "http://www.makesites.org/licenses/APACHE-2.0"
+		}
+	]
+}
