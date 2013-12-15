@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.0.1 (Sun, 15 Dec 2013 13:22:32 GMT)
+ * Version: 0.0.1 (Sun, 15 Dec 2013 13:32:06 GMT)
  *
  * @author makesites
  * Homepage: http://github.com/makesites/vanilla-query
@@ -174,13 +174,13 @@ vQuery.prototype.parent = function( query ){
 
 // is
 vQuery.prototype.is = function( query ){
-
+	var flag = false;
 	switch( query ){
 		case ":empty":
-			return (!_selected.hasChildNodes());
+			flag = (!_selected.hasChildNodes());
 		break;
-
 	}
+	return flag;
 };
 
 // next
