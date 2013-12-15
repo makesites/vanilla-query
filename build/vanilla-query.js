@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.0.1 (Sun, 15 Dec 2013 13:32:06 GMT)
+ * Version: 0.0.1 (Sun, 15 Dec 2013 13:35:38 GMT)
  *
  * @author makesites
  * Homepage: http://github.com/makesites/vanilla-query
@@ -120,8 +120,11 @@ vQuery.prototype.html = function( callback ){
 // internal selector method
 var selector = function( query ){
 	var el = null;
-	// check if it's a tag
-	if( isTag(query) ){
+	// first off if it's not a string assume it's already an element
+	if( typeof query !== "string" ){
+		el = query;
+	} else if( isTag(query) ){
+		// check if it's a tag
 		var tag = query.substring(1, query.length-1);
 		el = document.createElement( tag );
 	} else if( isId(query) ){
