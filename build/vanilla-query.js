@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.0.1 (Sun, 15 Dec 2013 13:13:16 GMT)
+ * Version: 0.0.1 (Sun, 15 Dec 2013 13:22:32 GMT)
  *
  * @author makesites
  * Homepage: http://github.com/makesites/vanilla-query
@@ -8,12 +8,15 @@
  */
 
  // stop processing if $ is already part of the namespace
-if( !$ ) (function(window, document) {
+//if( !$ )
+(function(window, document) {
 
 var vQuery = function(){
-
+	var self = this;
 	return function( query ){
-		return selector(query);
+		// find the el if passed a query
+		selector(query);
+		return self;
 	};
 };
 
@@ -204,8 +207,8 @@ var isId = function( string ){
 };
 
 
-	window.vQuery = vQuery;
+	window.vQuery = new vQuery();
 	// condition the attachment to the $
-	window.$ = vQuery;
+	window.$ = window.vQuery;
 
 })(this.window, this.document);
