@@ -26,11 +26,12 @@ concat({
 		'lib/_begin.js',
 		'lib/ajax.js',
 		'lib/attributes.js',
-		'lib/effects.js',
 		'lib/events.js',
 		'lib/manipulation.js',
 		'lib/selectors.js',
+		'lib/styles.js',
 		'lib/traversing.js',
+		'lib/utils.js',
 		'lib/_end.js'
 	],
 	dest : 'build/vanilla-query.js'
