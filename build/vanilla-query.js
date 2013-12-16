@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.0.1 (Mon, 16 Dec 2013 03:08:22 GMT)
+ * Version: 0.0.1 (Mon, 16 Dec 2013 03:26:59 GMT)
  *
  * @author makesites
  * Homepage: http://github.com/makesites/vanilla-query
@@ -118,9 +118,15 @@ vQuery.prototype.empty = function( callback ){
 };
 
 // html
-vQuery.prototype.html = function(){
+vQuery.prototype.html = function( html ){
 	var el = getEl();
-	return el.innerHTML;
+	// two states
+	if( html ){
+		el.innerHTML = html;
+		return this;
+	} else {
+		return el.innerHTML;
+	}
 };
 
 // internal selector method
