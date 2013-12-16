@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.0.1 (Mon, 16 Dec 2013 00:49:38 GMT)
+ * Version: 0.0.1 (Mon, 16 Dec 2013 02:53:30 GMT)
  *
  * @author makesites
  * Homepage: http://github.com/makesites/vanilla-query
@@ -13,11 +13,16 @@
 
 var vQuery = function(){
 	var self = this;
-	return function( query ){
+	var $ = function( query ){
 		// find the el if passed a query
 		selector(query);
 		return self;
 	};
+	// copy methods from class
+	for(var i in this ){
+		$[i] = this[i];
+	}
+	return $;
 };
 
 // internal variables
@@ -216,6 +221,22 @@ var getEl = function( i ){
 	// more sophisticated logic here?
 	return _selected[i] || _selected;
 };
+
+
+// Common.js extend method: https://github.com/commons/common.js
+var extend = function(destination, source) {
+	for (var property in source) {
+		if (source[property] && source[property].constructor && source[property].constructor === Object) {
+			destination[property] = destination[property] || {};
+			arguments.callee(destination[property], source[property]);
+		} else {
+			destination[property] = source[property];
+		}
+	}
+	return destination;
+};
+
+
 
 	window.vQuery = new vQuery();
 	// condition the attachment to the $
