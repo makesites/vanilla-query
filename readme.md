@@ -9,7 +9,7 @@ Use this lib if you're relying strictly in Vanilla JS or you are only using jQue
 
 ### Scope
 
-This is a strict Vanilla JS or CSS3 syntax conversion. No extra functionality is added - if some function is not available as Vanilla JavaScript of a CSS attribute it ill not be created in this lib.
+This is a strict Vanilla JS or CSS3 syntax conversion. No extra functionality is added - if some function is not available as Vanilla JavaScript of a CSS attribute it will not be created from scratch.
 
 
 ## Install
