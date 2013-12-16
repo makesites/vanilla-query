@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.0.1 (Sun, 15 Dec 2013 13:35:38 GMT)
+ * Version: 0.0.1 (Mon, 16 Dec 2013 00:49:38 GMT)
  *
  * @author makesites
  * Homepage: http://github.com/makesites/vanilla-query
@@ -113,8 +113,9 @@ vQuery.prototype.empty = function( callback ){
 };
 
 // html
-vQuery.prototype.html = function( callback ){
-	return _selected.innerHTML;
+vQuery.prototype.html = function(){
+	var el = getEl();
+	return el.innerHTML;
 };
 
 // internal selector method
@@ -209,6 +210,12 @@ var isId = function( string ){
 	return string.search(/^#\w+$/) === 0;
 };
 
+// return one item from the _selected stack
+var getEl = function( i ){
+	i = i || 0;
+	// more sophisticated logic here?
+	return _selected[i] || _selected;
+};
 
 	window.vQuery = new vQuery();
 	// condition the attachment to the $
