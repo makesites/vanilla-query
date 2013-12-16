@@ -6,11 +6,25 @@
 </head>
 <body>
 
+	<div id="main"></div>
+
 	<script type="text/javascript">
-	// let's have some fun:
+	// the fun starts:
 	$(document).ready(function(){
 
 		console.log("Document is loaded...");
+		// lets get some data
+		$.getJSON("https://api.github.com/orgs/makesites/repos", function( response ){
+			console.log("received", response);
+			var html = "";
+			$.each( response.data, function( item ){
+				console.log("item", item);
+				var li = '<li><a href="'+ item.html_url +'">'+ item.name +'</a><p>'+ item.description +'</p></li>';
+				html += li;
+			});
+			// output the markup
+			$("#main").html( html );
+		});
 
 	});
 	</script>
