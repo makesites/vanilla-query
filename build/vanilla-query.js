@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.0.1 (Mon, 16 Dec 2013 02:53:30 GMT)
+ * Version: 0.0.1 (Mon, 16 Dec 2013 03:08:22 GMT)
  *
  * @author makesites
  * Homepage: http://github.com/makesites/vanilla-query
@@ -172,8 +172,17 @@ vQuery.prototype.css = function(key, value){
 
 // each
 // Example: $("a").each(function( el ){ });
-vQuery.prototype.each = function( callback ){
-	[].forEach.call(_selected, callback );
+vQuery.prototype.each = function( a, b ){
+	// check variables
+	var el, callback;
+	if( typeof a == "function"){
+		callback = a;
+		el = getEl();
+	} else {
+		el = a;
+		callback = ( b ) ? b : function(){};
+	}
+	[].forEach.call(el, callback );
 };
 
 // parent
