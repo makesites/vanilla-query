@@ -41,6 +41,7 @@ These are the currently supported methods:
 * empty
 * get
 * getJSON
+* hasClass
 * hide
 * html
 * is

@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.0.1 (Mon, 16 Dec 2013 03:26:59 GMT)
+ * Version: 0.1.0 (Fri, 14 Mar 2014 07:57:50 GMT)
  *
  * @author makesites
  * Homepage: http://github.com/makesites/vanilla-query
@@ -80,6 +80,11 @@ vQuery.prototype.attr = function(key, value){
 vQuery.prototype.addClass = function(name){
 	_selected.classList.add(name);
 	return this;
+};
+
+// toggleClass
+vQuery.prototype.hasClass = function(name) {
+	return new RegExp(' ' + name + ' ').test(' ' + _selected.className + ' ');
 };
 
 // toggleClass
