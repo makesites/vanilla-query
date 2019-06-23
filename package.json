@@ -1,16 +1,16 @@
 {
-	"name" : "vanilla-query",
-	"version" : "0.1.0",
+	"name": "vanilla-query",
+	"version": "0.1.0",
 	"author": "makesites",
-	"homepage" : "http://github.com/makesites/vanilla-query",
-	"dependencies" : {
-		"commander" : "1.x",
-		"jshint" : "2.3.x",
-		"uglify-js" : "2.4.x",
-		"hbs" : "2.4.x"
+	"homepage": "http://github.com/makesites/vanilla-query",
+	"dependencies": {
+		"commander": "2.20.0",
+		"jshint": "2.10.2",
+		"uglify-js": "3.6.0",
+		"hbs": "4.0.4"
 	},
-	"engine" : {
-		"node" : "0.8.x"
+	"engine": {
+		"node": ">=10.x.x"
 	},
 	"licenses": [
 		{
