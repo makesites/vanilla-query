@@ -60,6 +60,6 @@ Initiated by [Makis Tracend](http://github.com/tracend)
 
 Started as a weekend project of [Makesites Hackathons](https://www.eventbrite.com/e/vanilla-query-tickets-9743333573?aff=eorg)
 
-Distributed through [Makesites.org](https://www.eventbrite.com/e/vanilla-query-tickets-9743333573?aff=eorg)
+Distributed through [Makesites.org](http://www.makesites.org/)
 
 Released under the [Apatche license v2.0](http://www.makesites.org/licenses/APACHE-2.0)
