@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.1.0 (Fri, 14 Mar 2014 07:57:50 GMT)
+ * Version: 0.1.1 (Sun, 23 Jun 2019 19:10:56 GMT)
  *
  * @author makesites
  * Homepage: http://github.com/makesites/vanilla-query
