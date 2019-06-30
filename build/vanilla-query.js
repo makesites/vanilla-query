@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.1.1 (Sun, 23 Jun 2019 19:10:56 GMT)
+ * Version: 0.2.0 (Sun, 30 Jun 2019 14:56:40 GMT)
  *
  * @author makesites
  * Homepage: http://github.com/makesites/vanilla-query
@@ -27,6 +27,53 @@ var vQuery = function(){
 
 // internal variables
 var _selected = {};
+
+// AJAX
+vQuery.prototype.ajax = function(url, options){
+	// prerequisite(s)
+	if( !url ) return;
+	// fallback(s)
+	options = options || {};
+	// variables
+	var data;
+	var type = options.dataType || 'get';
+	var success = options.success || function(){};
+	var error = options.error || function(){};
+
+	// start request
+	var request = new XMLHttpRequest();
+	request.open(type, url, true);
+
+	// use tpe specific methods ?
+	if (type.toLowerCase() === 'get') {
+		request.send();
+	}
+	if (type.toLowerCase() === 'post') {
+		// Check if options.data is JSON, if not, send as application/x-www-form-urlencoded
+		try {
+			options.data = JSON.stringify(options.data);
+			request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+		} catch (e) {
+			request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+		}
+		request.send(options.data);
+	}
+	request.onload = function() {
+		if (request.status >= 200 && request.status < 400) {
+			try {
+				data = JSON.parse(request.responseText);
+			} catch (e) {
+				data = request.responseText;
+			}
+			success(data);
+		} else {
+			error();
+		}
+	};
+	request.onerror = function(err) {
+		 error(err);
+	};
+};
 
 // GET
 // Example: $.get('//example.com', function (data) { });
@@ -67,6 +114,7 @@ vQuery.prototype.param = function(data){
 
 };
 
+
 // attr - set attribute value
 // Example: $( selector ).attr( key, value );
 vQuery.prototype.attr = function(key, value){
@@ -102,9 +150,15 @@ vQuery.prototype.ready = function( callback ){
 
 // click
 vQuery.prototype.click = function( callback ){
-	var el = _selected;
-	el.addEventListener('click', callback);
-	return el;
+	if( Array.isArray(_selected) ){
+		[].forEach.call(_selected, function(el) {
+		  el.addEventListener('click', callback);
+		});
+	} else {
+		var el = _selected;
+		el.addEventListener('click', callback);
+	}
+	return this;
 };
 
 // append
@@ -157,12 +211,7 @@ var selector = function( query ){
 	return this;
 
 };
-/*
-$('img').filter(':first')
 
-// Vanilla
-document.querySelector('img')
-*/
 // show
 vQuery.prototype.show = function(){
 	_selected.style.display = '';
@@ -215,6 +264,14 @@ vQuery.prototype.is = function( query ){
 // next
 vQuery.prototype.next = function(){
 	return _selected.nextSibling;
+};
+
+// filter (partial support)
+vQuery.prototype.filter = function(key){
+	if( key == ":first" ){
+		return ( Array.isArray(_selected) ) ? _selected[0] : _selected;
+	}
+	//...
 };
 
 
