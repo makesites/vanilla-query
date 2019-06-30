@@ -14,9 +14,9 @@ This is a strict Vanilla JS or CSS3 syntax conversion. No extra functionality is
 
 ## Install
 
-Using bower:
+Using npm:
 ```
-bower install vanilla-query
+npm install vanilla-query
 ````
 
 ## Usage
