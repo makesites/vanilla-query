@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.2.0 (Sun, 30 Jun 2019 14:56:40 GMT)
+ * Version: 0.3.0 (Mon, 01 Jul 2019 19:54:57 GMT)
  *
  * @author makesites
  * Homepage: http://github.com/makesites/vanilla-query
@@ -125,38 +125,79 @@ vQuery.prototype.attr = function(key, value){
 // Classes
 
 // addClass
-vQuery.prototype.addClass = function(name){
-	_selected.classList.add(name);
+vQuery.prototype.addClass = function(names){
+	// check if string?
+	var classes = names.split(' ');
+	for( var i in classes ){
+		var name = classes[i];
+		_selected.classList.add(name);
+	}
+	return this;
+};
+
+// hasClass
+vQuery.prototype.hasClass = function(name) {
+	//return new RegExp(' ' + name + ' ').test(' ' + _selected.className + ' ');
+	return _selected.classList.contains( name );
+};
+
+// toggleClass
+vQuery.prototype.toggleClass = function(names){
+	// check if string?
+	var classes = names.split(' ');
+	for( var i in classes ){
+		var name = classes[i];
+		_selected.classList.toggle(name);
+	}
 	return this;
 };
 
 // toggleClass
-vQuery.prototype.hasClass = function(name) {
-	return new RegExp(' ' + name + ' ').test(' ' + _selected.className + ' ');
-};
-
-// toggleClass
-vQuery.prototype.toggleClass = function(name){
-	_selected.classList.toggle(name);
+vQuery.prototype.removeClass = function(names){
+	// check if string?
+	var classes = names.split(' ');
+	for( var i in classes ){
+		var name = classes[i];
+		_selected.classList.remove(name);
+	}
 	return this;
 };
 
 // jQuery
 vQuery.prototype.ready = function( callback ){
-	// special condition for Chrome
-	//window.addEventListener('DOMFocusIn', callback, false);
-	document.addEventListener('DOMContentLoaded', callback, false);
+	if( callback && callback !== undefined && typeof callback === 'function' ){
+		// special condition for Chrome
+		//window.addEventListener('DOMFocusIn', callback, false);
+		document.addEventListener('DOMContentLoaded', callback, false);
+	} else {
+		// output error
+	}
 };
 
 // click
 vQuery.prototype.click = function( callback ){
-	if( Array.isArray(_selected) ){
+	if( Array.isArray(_selected) && callback ){
 		[].forEach.call(_selected, function(el) {
 		  el.addEventListener('click', callback);
 		});
-	} else {
+	} else if( callback ) {
 		var el = _selected;
-		el.addEventListener('click', callback);
+		el.addEventListener('click', callback); // this.on('click', callback);
+	} else {
+		this.trigger('click');
+	}
+	return this;
+};
+
+// trigger
+vQuery.prototype.trigger = function( event ){
+	var el = _selected;
+	if( el.fireEvent ){
+		el.fireEvent('on' + event);
+	} else {
+		var e = document.createEvent('Events');
+		e.initEvent(event, true, false);
+		el.dispatchEvent(e);
 	}
 	return this;
 };
@@ -214,7 +255,7 @@ var selector = function( query ){
 
 // show
 vQuery.prototype.show = function(){
-	_selected.style.display = '';
+	_selected.style.display = ''; // display = 'block';
 	return this;
 };
 
@@ -226,7 +267,18 @@ vQuery.prototype.hide = function(){
 
 // css
 vQuery.prototype.css = function(key, value){
-	_selected.style[ camelCase(key) ] = value;
+	if( isString(key) ){
+		_selected.style[ camelCase(key) ] = value;
+	} else if( isObject(key) ){
+		var styles = key;
+		for( var k in styles ){
+			var v = styles[k];
+			_selected.style[ camelCase(k) ] = v;
+		}
+	} else {
+		// return styles (check if element first?)
+		return getComputedStyle( _selected );
+	}
 	return this;
 };
 
@@ -263,7 +315,12 @@ vQuery.prototype.is = function( query ){
 
 // next
 vQuery.prototype.next = function(){
-	return _selected.nextSibling;
+	return _selected.nextSibling; // .nextElementSibling
+};
+
+// prev
+vQuery.prototype.prev = function(){
+	return _selected.previousSibling; // .previousElementSibling
 };
 
 // filter (partial support)
@@ -313,6 +370,15 @@ var extend = function(destination, source) {
 	return destination;
 };
 
+// Types
+
+var isString = function( value ){
+	return typeof value === 'string' || value instanceof String;
+};
+
+var isObject = function( value ){
+	return value && typeof value === 'object' && value.constructor === Object;
+};
 
 
 	window.vQuery = new vQuery();
