@@ -2,20 +2,31 @@
 	"name": "vanilla-query",
 	"version": "0.3.0",
 	"author": "makesites",
-	"homepage": "http://github.com/makesites/vanilla-query",
-	"dependencies": {
-		"commander": "2.20.0",
-		"jshint": "2.10.2",
-		"uglify-js": "3.6.0",
-		"hbs": "4.0.4"
+	"description": "Syntax-conversion for Vanilla JS, adapting standard jQuery conventions",
+	"keywords": ["javascript", "syntax", "jquery", "alternative"],
+	"homepage": "http://makesites.org/projects/vanilla-query",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/makesites/vanilla-query"
 	},
-	"engine": {
-		"node": ">=10.x.x"
+	"bugs": {
+		"url": "https://github.com/makesites/vanilla-query/issues"
 	},
+	"license": "APACHE-2.0",
 	"licenses": [
 		{
 			"type": "Apache License, Version 2.0",
 			"url": "http://www.makesites.org/licenses/APACHE-2.0"
 		}
-	]
+	],
+	"main": "./build/vanilla-query.min.js",
+	"engine": {
+		"node": ">=10.x.x"
+	},
+	"devDependencies": {
+		"commander": "2.20.0",
+		"jshint": "2.10.2",
+		"uglify-js": "3.6.0",
+		"hbs": "4.0.4"
+	}
 }
