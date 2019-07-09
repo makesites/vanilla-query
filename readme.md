@@ -27,7 +27,7 @@ Having said that, including it as a js dependency in your app should be enough t
 
 A simple example: [ [demo](http://rawgithub.com/makesites/vanilla-query/master/examples/index.html) ] [ [source](https://github.com/makesites/vanilla-query/blob/master/examples/index.html) ]
 
-## Methods
+## <a name="methods">Methods</a>
 
 These are the currently supported methods:
 
@@ -52,6 +52,8 @@ These are the currently supported methods:
 * ready
 * show
 * toggleClass
+
+[top of list ↑] (#methods)
 
 
 ## Credits
