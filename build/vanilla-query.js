@@ -1,9 +1,9 @@
 /**
  * @name vanilla-query
- * Version: 0.3.0 (Mon, 01 Jul 2019 19:54:57 GMT)
+ * Version: 0.4.0 (Tue, 09 Jul 2019 14:02:50 GMT)
  *
  * @author makesites
- * Homepage: http://github.com/makesites/vanilla-query
+ * Homepage: http://makesites.org/projects/vanilla-query
  * @license Apache License, Version 2.0
  */
 
@@ -89,8 +89,8 @@ vQuery.prototype.get = function(url, callback){
 vQuery.prototype.post = function(url, data, callback){
 	var httpRequest = new XMLHttpRequest();
 	httpRequest.onreadystatechange = callback;
-	httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	httpRequest.open('POST', url);
+	httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	httpRequest.send( vQuery.param( data ) );
 };
 
@@ -101,7 +101,21 @@ vQuery.prototype.getJSON = function(url, callback){
 	window._success = callback;
 	var scr = document.createElement('script');
 	scr.src = url + '?callback=_success';
-	document.body.appendChild(scr);
+	document.body.append(scr);
+};
+
+vQuery.prototype.parseJSON = function( str ){
+	// prereqiusite(s)
+	if( isObject(str) ) return str; /// already an object
+	if( !isString(str) ) return false; // alert error?
+	//
+	try {
+		var output = JSON.parse( str );
+		return output;
+	} catch (e) {
+		// error:
+		console.log("error", "JSON not valid");
+	}
 };
 
 // Param - convert a JSON object to a string of URL params
@@ -177,7 +191,7 @@ vQuery.prototype.ready = function( callback ){
 // click
 vQuery.prototype.click = function( callback ){
 	if( Array.isArray(_selected) && callback ){
-		[].forEach.call(_selected, function(el) {
+		_selected.forEach(function( el ){
 		  el.addEventListener('click', callback);
 		});
 	} else if( callback ) {
@@ -202,19 +216,114 @@ vQuery.prototype.trigger = function( event ){
 	return this;
 };
 
+
+// prepend
+vQuery.prototype.prepend = function( node ){
+	// prerequisite: check if node is an element?
+	// multiple items
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+			el.insertBefore( node, el.firstChild );
+		});
+	} else {
+		var el = _selected;
+		el.insertBefore( node, el.firstChild );
+	}
+	return this;
+};
+
 // append
-vQuery.prototype.append = function( el ){
-	_selected.appendChild( el );
+vQuery.prototype.append = function( node ){
+	// prerequisite: check if node is an element?
+	// multiple items
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+			el.append( node ); // appendChild(node);
+		});
+	} else {
+		var el = _selected;
+		el.append( node ); // appendChild(node);
+	}
+	return this;
+};
+
+vQuery.prototype.before = function( str ){
+	// multiple items
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+			el.insertAdjacentHTML('beforebegin', str);
+		});
+	} else {
+		var el = _selected;
+		el.insertAdjacentHTML('beforebegin', str);
+	}
+	return this;
+};
+
+vQuery.prototype.after = function( str ){
+	// multiple items
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+			el.insertAdjacentHTML('afterend', str);
+		});
+	} else {
+		var el = _selected;
+		el.insertAdjacentHTML('afterend', str);
+	}
+	return this;
+};
+
+vQuery.prototype.insertBefore = function( node ){
+	// prerequisite(s)
+	if( !_selected ) return this;
+	// prerequisite: check if node is an element?
+	// multiple items
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+		  el.parentNode.insertBefore(i, node.parentNode.firstChild);
+		});
+	} else {
+		var el = _selected;
+		el.parentNode.insertBefore(i, node.parentNode.firstChild);
+	}
+	return this;
+};
+
+vQuery.prototype.insertAfter = function( node ){
+	// prerequisite(s)
+	if( !_selected ) return this;
+	// prerequisite: check if node is an element?
+	// multiple items
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+		  el.parentNode.insertBefore(i, node.parentNode.nextSibling);
+		});
+	} else {
+		var el = _selected;
+		el.parentNode.insertBefore(i, node.parentNode.nextSibling);
+	}
+	return this;
 };
 
 // clone
 vQuery.prototype.clone = function( callback ){
-	return _selected.cloneNode(true);
+	return _selected.cloneNode(true); // also replace _selected with cloned?
 };
 
 // empty
 vQuery.prototype.empty = function( callback ){
-	while(_selected.firstChild){  _selected.removeChild(_selected.firstChild); }
+	while(_selected.firstChild){ _selected.removeChild(_selected.firstChild); }
+};
+
+vQuery.prototype.unique = function( items ){
+	var array = items || _selected || null;
+	var unique = Array.from( new Set( array ) );
+	if( items ){
+		return unique;
+	} else {
+		_selected = unique;
+		return this;
+	}
 };
 
 // html
@@ -227,6 +336,14 @@ vQuery.prototype.html = function( html ){
 	} else {
 		return el.innerHTML;
 	}
+};
+
+
+// String manipulation
+
+vQuery.prototype.trim = function( str ){
+	if( !isString(str) ) return false;
+	return str.trim();
 };
 
 // internal selector method
@@ -255,18 +372,41 @@ var selector = function( query ){
 
 // show
 vQuery.prototype.show = function(){
-	_selected.style.display = ''; // display = 'block';
+	// prerequisite(s)
+	if( !_selected ) return this;
+	// multiple items
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+		  el.style.display = ''; // display = 'block
+		});
+	} else {
+		var el = _selected;
+		el.style.display = ''; // display = 'block
+	}
 	return this;
 };
 
 // hide
 vQuery.prototype.hide = function(){
-	_selected.style.display = 'none';
+	// prerequisite(s)
+	if( !_selected ) return this;
+	// multiple items
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+		  el.style.display = 'none';
+		});
+	} else {
+		var el = _selected;
+		el.style.display = 'none';
+	}
 	return this;
 };
 
 // css
 vQuery.prototype.css = function(key, value){
+	// prerequisite(s)
+	if( !isElement( _selected )  ) return this;
+	//
 	if( isString(key) ){
 		_selected.style[ camelCase(key) ] = value;
 	} else if( isObject(key) ){
@@ -295,11 +435,55 @@ vQuery.prototype.each = function( a, b ){
 		callback = ( b ) ? b : function(){};
 	}
 	[].forEach.call(el, callback );
+	//el.forEach( callback );
 };
 
 // parent
 vQuery.prototype.parent = function( query ){
 	return _selected.parentNode;
+};
+
+vQuery.prototype.parents = function( el ){
+	var parent = _selected.parentNode;
+	var parents = [];
+	//
+	while( parent ){
+		parents.unshift(parent);
+		parent = parent.parentNode;
+	}
+	if( el ){
+		var parents_with_el = [];
+		var valid_parents = [];
+		parents.forEach(function( node ){
+			parents_with_el = slice( node.querySelectorAll( el ) ); // query());
+			parents_with_el.forEach(function( p ){
+				valid_parents.push( p );
+			});
+		});
+		_selected = this.unique( valid_parents );
+	} else {
+		_selected = parents;
+	}
+	return this;
+};
+
+vQuery.prototype.children = function(el){
+
+	var children = slice( _selected.children ); //
+	if (el) {
+		var children_with_el = [];
+		var valid_children = [];
+		children.forEach(function( node ){
+			children_with_el = slice( node.querySelectorAll( el ) ); // query()
+			children_with_el.forEach(function( p ){
+				valid_children.push( p );
+			});
+		});
+		_selected = this.unique( valid_children );
+	} else {
+		_selected = children;
+	}
+	return this;
 };
 
 // is
@@ -349,6 +533,10 @@ var isId = function( string ){
 	return string.search(/^#\w+$/) === 0;
 };
 
+var isElement = function( el ){
+	return el instanceof Element || el[0] instanceof Element;
+};
+
 // return one item from the _selected stack
 var getEl = function( i ){
 	i = i || 0;
@@ -356,6 +544,14 @@ var getEl = function( i ){
 	return _selected[i] || _selected;
 };
 
+// find an element in the dom
+var findEl = function( element ){
+ return isElement(element) ? element : document.querySelectorAll( element)[0];
+};
+
+var slice = function( nodes ){
+	return Array.prototype.slice.call( nodes );
+};
 
 // Common.js extend method: https://github.com/commons/common.js
 var extend = function(destination, source) {
