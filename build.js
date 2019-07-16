@@ -26,6 +26,7 @@ concat({
 		'lib/_begin.js',
 		'lib/ajax.js',
 		'lib/attributes.js',
+		'lib/comparators.js',
 		'lib/events.js',
 		'lib/manipulation.js',
 		'lib/selectors.js',
