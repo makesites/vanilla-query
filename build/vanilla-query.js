@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.4.0 (Tue, 09 Jul 2019 14:02:50 GMT)
+ * Version: 0.5.0 (Sun, 21 Jul 2019 20:36:35 GMT)
  *
  * @author makesites
  * Homepage: http://makesites.org/projects/vanilla-query
@@ -36,19 +36,19 @@ vQuery.prototype.ajax = function(url, options){
 	options = options || {};
 	// variables
 	var data;
-	var type = options.dataType || 'get';
+	var method = options.method || 'get';
 	var success = options.success || function(){};
 	var error = options.error || function(){};
 
 	// start request
 	var request = new XMLHttpRequest();
-	request.open(type, url, true);
+	request.open(method, url, true);
 
 	// use tpe specific methods ?
-	if (type.toLowerCase() === 'get') {
+	if (method.toLowerCase() === 'get') {
 		request.send();
 	}
-	if (type.toLowerCase() === 'post') {
+	if (method.toLowerCase() === 'post') {
 		// Check if options.data is JSON, if not, send as application/x-www-form-urlencoded
 		try {
 			options.data = JSON.stringify(options.data);
@@ -94,6 +94,29 @@ vQuery.prototype.post = function(url, data, callback){
 	httpRequest.send( vQuery.param( data ) );
 };
 
+vQuery.prototype.load = function(url, data, callback){
+	// prerequisite(s)
+	if( !url ) return;
+	// fallback(s)
+	data = data || {};
+	if( !isFunction(callback) ) callback = function(){};
+	var nodes = ( !isArray(_selected) ) ? [_selected] : _selected;
+	// ajax request
+	this.ajax( url, {
+		data: data,
+		dataType: 'html', // what's returned from the server
+		success: function( response ){
+			//
+			nodes.forEach(function(node){
+				node.innerHTML = response;
+			});
+			// continue;
+			callback();
+		}
+	});
+	//
+};
+
 // JSONP
 // Example: $.getJSON('//example.com', function (data) { })
 vQuery.prototype.getJSON = function(url, callback){
@@ -132,9 +155,51 @@ vQuery.prototype.param = function(data){
 // attr - set attribute value
 // Example: $( selector ).attr( key, value );
 vQuery.prototype.attr = function(key, value){
-	_selected.setAttribute(key, value);
+	if( !_selected ) return this;
+	var nodes = ( isElement(_selected) && !isArray(_selected) ) ? [ _selected ] : _selected;
+	var output = [];
+	//
+	nodes.forEach(function(el){
+		if( key ){
+			// set attributes
+			if( value && isString(value) ){
+				el.setAttribute(key, value);
+				output = this; // change of type...
+			} else if ( isObject(key) ){
+				var props = key;
+				for(var p in props){
+					el.setAttribute(p, props[p]);
+					output = this; // change of type...
+				}
+			} else if( isString(key) ){
+				output.push(el.attributes[key].value);
+			}
+		} else {
+			// return attributes
+			var atts = {};
+			el.attributes.forEach(function( property ){
+				var name = camelCase( property.name );
+				atts[name] = property.value;
+			});
+			output.push(atts);
+		}
+	});
+
+	return output;
+};
+
+vQuery.prototype.removeAttr = function(attr){
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+			el.removeAttribute( attr );
+		});
+	} else {
+		var el = _selected;
+		el.removeAttribute( attr );
+	}
 	return this;
 };
+
 
 // Classes
 
@@ -177,7 +242,73 @@ vQuery.prototype.removeClass = function(names){
 	return this;
 };
 
-// jQuery
+
+
+vQuery.prototype.type = function( el ){
+	el = el || _selected;
+	return Object.prototype.toString.call( el ).replace(/^\[object (.+)\]$/, '$1').toLowerCase();
+};
+
+vQuery.prototype.isEmptyObject = function(){
+	if( !_selected ) return;
+	return !_selected.hasChildNodes();
+};
+
+vQuery.prototype.isFunction = function( value ){
+	return isFunction( value );
+};
+
+vQuery.prototype.isArray = function( value ){
+	return isArray( value );
+};
+
+// Elements
+vQuery.prototype.contains = function( el ){
+	// check for a match
+	return _selected.textContent.indexOf( el ) > -1;
+};
+
+
+vQuery.prototype.val = function( value ){
+	if( isString(value) ){
+		if( isArray(_selected) ){
+			_selected.forEach(function(i){
+				i.value = value;
+			});
+		} else {
+			_selected.value = value;
+		}
+		return this;
+	} else {
+		return _selected.value || 0;
+	}
+};
+
+//
+
+vQuery.prototype.text = function( text ){
+	text = text || "";
+	var output = [];
+	if( isArray(_selected) ){
+		_selected.forEach(function( el ){
+			if( !text ){
+				output.push( el.textContent );
+			} else {
+				el.textContent = text;
+			}
+		});
+	} else {
+		var el = _selected;
+		if( !text ){
+			output.push( el.textContent );
+		} else {
+			el.textContent = text;
+		}
+	}
+	return contents ? this : output;
+};
+
+// Event methods
 vQuery.prototype.ready = function( callback ){
 	if( callback && callback !== undefined && typeof callback === 'function' ){
 		// special condition for Chrome
@@ -185,6 +316,7 @@ vQuery.prototype.ready = function( callback ){
 		document.addEventListener('DOMContentLoaded', callback, false);
 	} else {
 		// output error
+		console.log(".ready():", "Callback not valid");
 	}
 };
 
@@ -212,6 +344,36 @@ vQuery.prototype.trigger = function( event ){
 		var e = document.createEvent('Events');
 		e.initEvent(event, true, false);
 		el.dispatchEvent(e);
+	}
+	return this;
+};
+
+vQuery.prototype.on = function( event, callback ){
+	// prerequisite(s)
+	if( !callback ) return this; // assume it's a function?
+	//
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+		  el.addEventListener( event, callback );
+		});
+	} else {
+		var el = _selected;
+		el.addEventListener( event, callback );
+	}
+	return this;
+};
+
+vQuery.prototype.off = function( event, callback ){
+	// prerequisite(s)
+	if( !callback ) return this; // assume it's a function?
+	//
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+		  el.removeEventListener( event, callback );
+		});
+	} else {
+		var el = _selected;
+		el.removeEventListener( event, callback );
 	}
 	return this;
 };
@@ -280,11 +442,11 @@ vQuery.prototype.insertBefore = function( node ){
 	// multiple items
 	if( Array.isArray(_selected) ){
 		_selected.forEach(function( el ){
-		  el.parentNode.insertBefore(i, node.parentNode.firstChild);
+		  node.parentNode.insertBefore(el, node.parentNode.firstChild);
 		});
 	} else {
 		var el = _selected;
-		el.parentNode.insertBefore(i, node.parentNode.firstChild);
+		node.parentNode.insertBefore(el, node.parentNode.firstChild);
 	}
 	return this;
 };
@@ -296,23 +458,68 @@ vQuery.prototype.insertAfter = function( node ){
 	// multiple items
 	if( Array.isArray(_selected) ){
 		_selected.forEach(function( el ){
-		  el.parentNode.insertBefore(i, node.parentNode.nextSibling);
+		  node.parentNode.insertBefore(el, node.parentNode.nextSibling);
 		});
 	} else {
 		var el = _selected;
-		el.parentNode.insertBefore(i, node.parentNode.nextSibling);
+		node.parentNode.insertBefore(el, node.parentNode.nextSibling);
 	}
 	return this;
 };
+
+vQuery.prototype.replaceWith = function( html ){
+	// prerequisite(s)
+	var replaced = [];
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+			replaced.push( el.outerHTML );
+			el.outerHTML = html;
+		});
+	} else {
+		var el = _selected;
+		replaced.push( el.outerHTML );
+		el.outerHTML = html;
+	}
+	return replaced;
+};
+
+// Feature not supported yet
+/*
+vQuery.prototype.wrap = function( tag ){
+	// check tag
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+			el.outerHTML = `${tag.match(/<(.|\n)*?>/g)[0]}${el.outerHTML}`;
+		});
+	} else {
+		var el = _selected;
+		el.outerHTML = `${tag.match(/<(.|\n)*?>/g)[0]}${el.outerHTML}`;
+	}
+	return this;
+};
+*/
+
 
 // clone
 vQuery.prototype.clone = function( callback ){
 	return _selected.cloneNode(true); // also replace _selected with cloned?
 };
 
+vQuery.prototype.remove = function(){
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+		  el.parentNode.removeChild(el);
+		});
+	} else {
+		var el = _selected;
+		el.parentNode.removeChild(el);
+	}
+	return this;
+};
+
 // empty
 vQuery.prototype.empty = function( callback ){
-	while(_selected.firstChild){ _selected.removeChild(_selected.firstChild); }
+	while(_selected.firstChild){ _selected.removeChild(_selected.firstChild); } // or: el.innerHTML = '';
 };
 
 vQuery.prototype.unique = function( items ){
@@ -338,6 +545,22 @@ vQuery.prototype.html = function( html ){
 	}
 };
 
+vQuery.prototype.parseHTML = function( str ){
+	var html = document.implementation.createHTMLDocument();
+	html.body.innerHTML =  str ;
+	return html.body.children;
+};
+
+
+// Array manipulation
+
+vQuery.prototype.map = function( cb ){
+	// prerequisite(s)
+	if( !isFunction(cb) || !_selected ) return this;
+	Array.prototype.map.call( _selected, cb );
+	return this;
+};
+
 
 // String manipulation
 
@@ -347,7 +570,9 @@ vQuery.prototype.trim = function( str ){
 };
 
 // internal selector method
-var selector = function( query ){
+var selector = function( query, root ){
+	// fallbacks
+	if( !root || !isElement(root) ) root = document;
 	var el = null;
 	// first off if it's not a string assume it's already an element
 	if( typeof query !== "string" ){
@@ -359,10 +584,10 @@ var selector = function( query ){
 	} else if( isId(query) ){
 		// check if it's an id
 		var id = query.substr(1);
-		el = document.getElementById( id );
+		el = root.getElementById( id );
 	} else {
 		// run a basic query
-		el = document.querySelectorAll(query);
+		el = root.querySelectorAll(query);
 	}
 	// save element(s) for chaining commands
 	_selected = el;
@@ -422,6 +647,38 @@ vQuery.prototype.css = function(key, value){
 	return this;
 };
 
+vQuery.prototype.position = function(){
+	if( !_selected ) return false;
+	// expect one element
+	return { left: _selected.offsetLeft, top: _selected.offsetTop };
+};
+
+vQuery.prototype.height = function(){
+	if( !_selected ) return 0; // error log?
+	var height = _selected.offsetHeight || 0;
+	return height;
+};
+
+vQuery.prototype.width = function(){
+	if( !_selected ) return 0; // error log?
+	var width = _selected.offsetWidth || 0;
+	return width;
+};
+
+vQuery.prototype.offset = function(){
+	var pos = _selected.getBoundingClientRect();
+	var offset = {
+		top: pos.top + document.body.scrollTop,
+		left: pos.left + document.body.scrollLeft
+	};
+	return offset;
+};
+
+vQuery.prototype.offsetParent = function(){
+	if( !_selected ) return false; // error log?
+	return _selected.offsetParent;
+};
+
 // each
 // Example: $("a").each(function( el ){ });
 vQuery.prototype.each = function( a, b ){
@@ -437,6 +694,43 @@ vQuery.prototype.each = function( a, b ){
 	[].forEach.call(el, callback );
 	//el.forEach( callback );
 };
+
+vQuery.prototype.find = function(query){
+	if( !isElement(query) ){
+		if( query.indexOf(',') > -1 ){
+			var _query = query.split(',');
+			var nodes = [];
+			_query.forEach(function(i){
+				var subset = [];
+				if(nodes.length){
+					nodes.forEach(function( node ){
+						subset = selector(i, node);
+						subset.forEach(function(m){
+							nodes.push(m);
+						});
+					});
+				} else {
+					subset = selector(i, _selected);
+					subset.forEach(function(n){
+						nodes.push(n);
+					});
+				}
+			});
+			_selected = nodes;
+		} else {
+			_selected = selector(query, _selected);
+		}
+	} else {
+		// replace selected
+		_selected = query;
+	}
+	return this;
+};
+
+vQuery.prototype.get = function(i){
+	return ( isArray(_selected) ) ? _selected[i] : null;
+};
+
 
 // parent
 vQuery.prototype.parent = function( query ){
@@ -486,13 +780,29 @@ vQuery.prototype.children = function(el){
 	return this;
 };
 
+vQuery.prototype.siblings = function(){
+	var nodes = _selected.parentNode.children;
+	var siblings = Array.prototype.filter.call(nodes, function ( child ){
+		return child !== _selected;
+	});
+	var _selected = siblings;
+	return this;
+};
+
 // is
 vQuery.prototype.is = function( query ){
-	var flag = false;
+	// flags
+	var flag = null;
 	switch( query ){
 		case ":empty":
 			flag = (!_selected.hasChildNodes());
 		break;
+		// more flags...
+	}
+	// check query
+	if( _selected && query && flag ===  null ){
+		var el = selector( query );
+		flag = (el === _selected);
 	}
 	return flag;
 };
@@ -508,11 +818,16 @@ vQuery.prototype.prev = function(){
 };
 
 // filter (partial support)
-vQuery.prototype.filter = function(key){
-	if( key == ":first" ){
+vQuery.prototype.filter = function( query ){
+	if( query == ":first" ){
 		return ( Array.isArray(_selected) ) ? _selected[0] : _selected;
 	}
-	//...
+	// test if element(s)
+	if( isFunction( query ) ){
+		var el = Array.prototype.filter.call(_selected, query);
+		_selected = el; // update selected?
+	}
+	return this;
 };
 
 
@@ -536,6 +851,7 @@ var isId = function( string ){
 var isElement = function( el ){
 	return el instanceof Element || el[0] instanceof Element;
 };
+
 
 // return one item from the _selected stack
 var getEl = function( i ){
@@ -568,12 +884,20 @@ var extend = function(destination, source) {
 
 // Types
 
-var isString = function( value ){
-	return typeof value === 'string' || value instanceof String;
+var isArray = function( value ){
+	return Array.isArray( value );
+};
+
+var isFunction = function( fn ){
+	return (fn instanceof Function);
 };
 
 var isObject = function( value ){
 	return value && typeof value === 'object' && value.constructor === Object;
+};
+
+var isString = function( value ){
+	return typeof value === 'string' || value instanceof String;
 };
 
 
