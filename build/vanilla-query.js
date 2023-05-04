@@ -1,6 +1,6 @@
 /**
  * @name vanilla-query
- * Version: 0.5.0 (Sun, 21 Jul 2019 20:36:35 GMT)
+ * Version: 0.5.1 (Thu, 04 May 2023 19:15:17 GMT)
  *
  * @author makesites
  * Homepage: http://makesites.org/projects/vanilla-query
@@ -625,6 +625,34 @@ vQuery.prototype.hide = function(){
 		el.style.display = 'none';
 	}
 	return this;
+};
+
+// toggle
+vQuery.prototype.toggle = function (elem) {
+	// prerequisite(s)
+	if( !_selected ) return this;
+	var self = this;
+	// multiple items
+	if( Array.isArray(_selected) ){
+		_selected.forEach(function( el ){
+			// If the element is visible, hide it
+			if( window.getComputedStyle(el).display === 'block' ){
+				self.hide();
+			} else {
+				self.show();
+			}
+		});
+	} else {
+		var el = _selected;
+		// If the element is visible, hide it
+		if( window.getComputedStyle(el).display === 'block' ){
+			self.hide();
+		} else {
+			self.show();
+		}
+	}
+	return this;
+
 };
 
 // css
