@@ -24,9 +24,9 @@
 		"node": ">=10.x.x"
 	},
 	"devDependencies": {
-		"commander": "2.20.0",
-		"jshint": "2.10.2",
-		"uglify-js": "3.6.0",
-		"hbs": "4.0.4"
+		"commander": "10.x.x",
+		"jshint": ">2.13.0",
+		"uglify-js": ">3.17.0",
+		"hbs": ">=4.2.0"
 	}
 }
